@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/edt_chapter_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Chapter Title" />
+
+    <EditText
+        android:id="@+id/edt_chapter_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Start Writing..."
+        android:lines="10"
+        android:inputType="textMultiLine" />
+
+    <Button
+        android:id="@+id/btn_save"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Save Changes"
+        android:textSize="18sp"/>
+
+    <Button
+        android:id="@+id/btn_delete"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Delete Chapter"
+        android:textSize="18sp"/>
+</LinearLayout>

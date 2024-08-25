@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- res/values/colors.xml (Light Mode) -->
+
+<color name="my_light_primary">#FFFFFF</color>
+<color name="my_light_primary_variant">#E0E0E0</color>
+<color name="my_light_secondary">#FF4081</color>
+<color name="my_light_accent">#FF5722</color>
+
+
+    <!-- res/values-night/colors.xml (Dark Mode) -->
+
+<color name="my_dark_primary">#121212</color>
+<color name="my_dark_primary_variant">#1D1D1D</color>
+<color name="my_dark_secondary">#CF6679</color>
+<color name="my_dark_accent">#FF5722</color>
+
+</resources>

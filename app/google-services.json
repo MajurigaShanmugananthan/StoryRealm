@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "816571399335",
+    "project_id": "storyrealm-48349",
+    "storage_bucket": "storyrealm-48349.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:816571399335:android:904f20398de390fad22f82",
+        "android_client_info": {
+          "package_name": "com.example.storyrealm"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD92AmuDDGcdKg9cS5QIx-625bFs3BBl3s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
