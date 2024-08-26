@@ -9,42 +9,41 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.storyrealm.R;
-import com.example.storyrealm.models.Notification;
 
 import java.util.List;
 
-public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.ViewHolder> {
+public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder> {
 
-    private List<Notification> notifications;
+    private List<String> notificationList;
 
-    public NotificationAdapter(List<Notification> notifications) {
-        this.notifications = notifications;
+    public NotificationAdapter(List<String> notificationList) {
+        this.notificationList = notificationList;
     }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public NotificationViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_notification, parent, false);
-        return new ViewHolder(view);
+        return new NotificationViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Notification notification = notifications.get(position);
-        holder.messageTextView.setText(notification.getMessage());
+    public void onBindViewHolder(@NonNull NotificationViewHolder holder, int position) {
+        String message = notificationList.get(position);
+        holder.notificationMessage.setText(message);
     }
 
     @Override
     public int getItemCount() {
-        return notifications.size();
+        return notificationList.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView messageTextView;
+    public static class NotificationViewHolder extends RecyclerView.ViewHolder {
+        TextView notificationMessage;
 
-        public ViewHolder(@NonNull View itemView) {
+        public NotificationViewHolder(@NonNull View itemView) {
             super(itemView);
-            messageTextView = itemView.findViewById(R.id.notification_message);
+            notificationMessage = itemView.findViewById(R.id.notification_message);
         }
     }
 }

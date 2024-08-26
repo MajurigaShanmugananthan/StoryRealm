@@ -1,30 +1,51 @@
 package com.example.storyrealm.models;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Story {
+
     private String id;
+    private String authorId;
+    private String content;
     private String title;
-    private String description; // Assuming 'description' is used for the content
-    private String status;
+    private long timestamp;
 
     // Default constructor required for Firebase
     public Story() {
     }
 
-    // Constructor with parameters
-    public Story(String id, String title, String description, String status) {
+    public Story(String id, String authorId, String content, String title, long timestamp) {
         this.id = id;
+        this.authorId = authorId;
+        this.content = content;
         this.title = title;
-        this.description = description;
-        this.status = status;
+        this.timestamp = timestamp;
     }
 
-    // Getters and Setters
+    // Getters and setters
     public String getId() {
         return id;
     }
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getAuthorId() {
+        return authorId;
+    }
+
+    public void setAuthorId(String authorId) {
+        this.authorId = authorId;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public String getTitle() {
@@ -35,19 +56,22 @@ public class Story {
         this.title = title;
     }
 
-    public String getDescription() {
-        return description;
+    public long getTimestamp() {
+        return timestamp;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
+    // Convert Story to a Map
+    public Map<String, Object> toMap() {
+        Map<String, Object> result = new HashMap<>();
+        result.put("id", id);
+        result.put("authorId", authorId);
+        result.put("content", content);
+        result.put("title", title);
+        result.put("timestamp", timestamp);
+        return result;
     }
 }

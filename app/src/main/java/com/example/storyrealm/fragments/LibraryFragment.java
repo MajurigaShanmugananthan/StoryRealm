@@ -14,11 +14,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.storyrealm.R;
 import com.example.storyrealm.adapters.StoryAdapter;
 import com.example.storyrealm.models.Story;
-import com.example.storyrealm.utils.FirebaseUtils;
-
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +28,7 @@ public class LibraryFragment extends Fragment {
     private RecyclerView recyclerView;
     private StoryAdapter adapter;
     private List<Story> stories;
+    private DatabaseReference databaseReference;
 
     @Nullable
     @Override
@@ -41,28 +42,29 @@ public class LibraryFragment extends Fragment {
         adapter = new StoryAdapter(stories);
         recyclerView.setAdapter(adapter);
 
-        loadUserStories();
+        databaseReference = FirebaseDatabase.getInstance().getReference("stories");
+
+        loadStories();
 
         return view;
     }
 
-    private void loadUserStories() {
-        String userId = FirebaseUtils.getAuth().getCurrentUser().getUid();
-        FirebaseUtils.getDatabase().getReference("stories")
-                .orderByChild("authorId")
-                .equalTo(userId)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        stories.clear();
-                        for (DataSnapshot snapshot : task.getResult().getChildren()) {
-                            Story story = snapshot.getValue(Story.class);
-                            if (story != null) {
-                                stories.add(story);
-                            }
-                        }
-                        adapter.notifyDataSetChanged();
-                    }
-                });
+    private void loadStories() {
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                stories.clear();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Story story = snapshot.getValue(Story.class);
+                    stories.add(story);
+                }
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Handle errors
+            }
+        });
     }
 }

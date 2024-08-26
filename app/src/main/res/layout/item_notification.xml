@@ -1,14 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/notification_message"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:padding="16dp">
-
-    <TextView
-        android:id="@+id/notification_message"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Notification Message"
-        android:textAppearance="?attr/textAppearanceBody1" />
-</LinearLayout>
+    android:padding="16dp"
+    android:text="Notification Message" />

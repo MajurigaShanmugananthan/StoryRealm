@@ -20,62 +20,76 @@ import com.example.storyrealm.adapters.StoryAdapter;
 import com.example.storyrealm.models.Story;
 import com.example.storyrealm.utils.FirebaseUtils;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SearchFragment extends Fragment {
 
-    private EditText searchField;
-    private Button searchButton;
+    private EditText edtSearch;
+    private Button btnSearch;
     private RecyclerView recyclerView;
-    private StoryAdapter adapter;
-    private List<Story> stories;
+    private StoryAdapter storyAdapter;
+    private List<Story> storyList;
+    private DatabaseReference storyRef;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_search, container, false);
 
-        searchField = view.findViewById(R.id.search_field);
-        searchButton = view.findViewById(R.id.search_button);
+        edtSearch = view.findViewById(R.id.search_field);
+        btnSearch = view.findViewById(R.id.search_button);
         recyclerView = view.findViewById(R.id.recycler_view);
 
+        storyList = new ArrayList<>();
+        storyAdapter = new StoryAdapter(storyList);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        stories = new ArrayList<>();
-        adapter = new StoryAdapter(stories);
-        recyclerView.setAdapter(adapter);
+        recyclerView.setAdapter(storyAdapter);
 
-        searchButton.setOnClickListener(v -> searchStories());
+        storyRef = FirebaseUtils.getStoryReference();
+
+        btnSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchStories();
+            }
+        });
 
         return view;
     }
 
     private void searchStories() {
-        String query = searchField.getText().toString();
-        if (TextUtils.isEmpty(query)) {
-            Toast.makeText(getContext(), "Please enter a story name", Toast.LENGTH_SHORT).show();
+        String searchText = edtSearch.getText().toString().trim();
+
+        if (TextUtils.isEmpty(searchText)) {
+            Toast.makeText(getContext(), "Please enter a search term", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        FirebaseUtils.getDatabase().getReference("stories")
-                .orderByChild("title")
-                .startAt(query)
-                .endAt(query + "\uf8ff")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        stories.clear();
-                        for (DataSnapshot snapshot : task.getResult().getChildren()) {
-                            Story story = snapshot.getValue(Story.class);
-                            if (story != null) {
-                                stories.add(story);
-                            }
+        storyRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                storyList.clear();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Story story = snapshot.getValue(Story.class);
+                    if (story != null) {
+                        String title = story.getTitle();
+                        if (title != null && title.toLowerCase().contains(searchText.toLowerCase())) {
+                            storyList.add(story);
                         }
-                        adapter.notifyDataSetChanged();
-                    } else {
-                        Toast.makeText(getContext(), "Search failed", Toast.LENGTH_SHORT).show();
                     }
-                });
+                }
+                storyAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getContext(), "Error loading stories", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

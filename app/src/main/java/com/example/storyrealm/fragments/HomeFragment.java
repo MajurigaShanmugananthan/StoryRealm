@@ -36,7 +36,10 @@ public class HomeFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         storyList = new ArrayList<>();
-        storyAdapter = new StoryAdapter(storyList); // Pass storyList here
+
+        // Pass both the context and the story list to the StoryAdapter
+        storyAdapter = new StoryAdapter(storyList);
+
         recyclerView.setAdapter(storyAdapter);
 
         fetchRecommendations();

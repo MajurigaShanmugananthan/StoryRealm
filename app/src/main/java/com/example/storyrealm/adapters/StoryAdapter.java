@@ -15,7 +15,7 @@ import java.util.List;
 
 public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHolder> {
 
-    private final List<Story> storyList;
+    private List<Story> storyList;
 
     public StoryAdapter(List<Story> storyList) {
         this.storyList = storyList;
@@ -31,8 +31,8 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
     @Override
     public void onBindViewHolder(@NonNull StoryViewHolder holder, int position) {
         Story story = storyList.get(position);
-        holder.titleTextView.setText(story.getTitle());
-        holder.contentTextView.setText(story.getDescription());
+        holder.txtStoryTitle.setText(story.getTitle());
+        holder.txtStoryContent.setText(story.getContent());
     }
 
     @Override
@@ -41,13 +41,12 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
     }
 
     public static class StoryViewHolder extends RecyclerView.ViewHolder {
-        TextView titleTextView;
-        TextView contentTextView;
+        TextView txtStoryTitle, txtStoryContent;
 
         public StoryViewHolder(@NonNull View itemView) {
             super(itemView);
-            titleTextView = itemView.findViewById(R.id.text_view_title);
-            contentTextView = itemView.findViewById(R.id.text_view_content);
+            txtStoryTitle = itemView.findViewById(R.id.txt_story_title);
+            txtStoryContent = itemView.findViewById(R.id.txt_story_content);
         }
     }
 }
