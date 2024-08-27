@@ -23,7 +23,7 @@
         android:hint="Start Writing..."
         android:layout_below="@id/story_title_edit_text"
         android:layout_marginTop="16dp"
-        android:minLines="20"
+        android:minLines="15"
         android:gravity="top|start"
         android:inputType="textMultiLine" />
 

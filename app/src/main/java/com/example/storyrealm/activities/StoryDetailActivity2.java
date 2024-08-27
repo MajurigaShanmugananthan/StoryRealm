@@ -1,26 +1,33 @@
 package com.example.storyrealm.activities;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.storyrealm.R;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.example.storyrealm.models.Story;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 
 public class StoryDetailActivity2 extends AppCompatActivity {
 
+    private static final String TAG = "StoryDetailActivity2";
     private TextView storyTitleTextView;
     private TextView storyContentTextView;
-    private FirebaseFirestore db;
+    private FirebaseDatabase database;
+    private DatabaseReference storyRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_story_detail);
+        setContentView(R.layout.activity_story_detail2);
 
-        // Initialize Firebase Fire store
-        db = FirebaseFirestore.getInstance();
+        // Initialize Firebase Database
+        database = FirebaseDatabase.getInstance();
+        storyRef = database.getReference("stories");
 
         // Find the TextViews in the layout
         storyTitleTextView = findViewById(R.id.story_title);
@@ -32,33 +39,37 @@ public class StoryDetailActivity2 extends AppCompatActivity {
         // Load story details
         if (storyId != null) {
             loadStoryDetails(storyId);
+        } else {
+            storyTitleTextView.setText("Story ID not found");
+            storyContentTextView.setText("");
         }
     }
 
     private void loadStoryDetails(String storyId) {
-        // Reference to the story document in Fire store
-        db.collection("stories").document(storyId).get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-                            // Extract story data
-                            String title = document.getString("title");
-                            String content = document.getString("content");
-
-                            // Update UI with story details
-                            storyTitleTextView.setText(title);
-                            storyContentTextView.setText(content);
-                        } else {
-                            // Handle the case where the document does not exist
-                            storyTitleTextView.setText("Story not found");
-                            storyContentTextView.setText("");
-                        }
+        storyRef.child(storyId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    Story story = dataSnapshot.getValue(Story.class);
+                    if (story != null) {
+                        storyTitleTextView.setText(story.getTitle());
+                        storyContentTextView.setText(story.getContent());
                     } else {
-                        // Handle the error
-                        storyTitleTextView.setText("Error loading story");
+                        storyTitleTextView.setText("Story not found");
                         storyContentTextView.setText("");
                     }
-                });
+                } else {
+                    storyTitleTextView.setText("Story not found");
+                    storyContentTextView.setText("");
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(TAG, "Failed to load story details", databaseError.toException());
+                storyTitleTextView.setText("Error loading story");
+                storyContentTextView.setText("");
+            }
+        });
     }
 }

@@ -3,7 +3,6 @@ package com.example.storyrealm.fragments;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,15 +20,18 @@ import com.example.storyrealm.R;
 import com.example.storyrealm.activities.StoryDetailActivity2;
 import com.example.storyrealm.adapters.StoryAdapter;
 import com.example.storyrealm.models.Story;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class HomeFragment extends Fragment {
-    private FirebaseFirestore db;
+    private FirebaseDatabase database;
+    private DatabaseReference storiesRef;
     private RecyclerView recyclerView;
     private StoryAdapter storyAdapter;
     private List<Story> storyList;
@@ -40,7 +42,9 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        db = FirebaseFirestore.getInstance();
+        database = FirebaseDatabase.getInstance();
+        storiesRef = database.getReference("stories");
+
         recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         searchEditText = view.findViewById(R.id.search_edit_text);
@@ -68,39 +72,47 @@ public class HomeFragment extends Fragment {
             return;
         }
 
-        db.collection("stories")
-                .whereEqualTo("title", query)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    List<Story> searchedStories = new ArrayList<>();
-                    for (DocumentSnapshot document : queryDocumentSnapshots) {
-                        Story story = document.toObject(Story.class);
+        storiesRef.orderByChild("title").equalTo(query).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                List<Story> searchedStories = new ArrayList<>();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Story story = snapshot.getValue(Story.class);
+                    if (story != null) {
                         searchedStories.add(story);
                     }
-                    updateStoryList(searchedStories);
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Failed to fetch stories", Toast.LENGTH_SHORT).show();
-                });
+                }
+                updateStoryList(searchedStories);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle the error
+                Toast.makeText(getContext(), "Failed to fetch stories", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void fetchUpdatedStories() {
-        db.collection("stories")
-                .orderBy("timestamp", Query.Direction.DESCENDING)
-                .limit(20)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    List<Story> updatedStories = new ArrayList<>();
-                    for (DocumentSnapshot document : queryDocumentSnapshots) {
-                        Story story = document.toObject(Story.class);
+        storiesRef.orderByChild("timestamp").limitToLast(20).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                List<Story> updatedStories = new ArrayList<>();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Story story = snapshot.getValue(Story.class);
+                    if (story != null) {
                         updatedStories.add(story);
-                        Log.d("HomeFragment", "Fetched story: " + story.getTitle());
                     }
-                    updateStoryList(updatedStories);
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Failed to fetch updated stories", Toast.LENGTH_SHORT).show();
-                });
+                }
+                updateStoryList(updatedStories);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle the error
+                Toast.makeText(getContext(), "Failed to fetch updated stories", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void updateStoryList(List<Story> newStories) {

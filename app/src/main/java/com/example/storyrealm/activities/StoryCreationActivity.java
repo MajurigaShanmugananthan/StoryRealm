@@ -44,7 +44,9 @@ public class StoryCreationActivity extends AppCompatActivity {
                 return;
             }
 
-            if (content.length() > 1000) {
+            int wordCount = content.split("\\s+").length; // Split by whitespace and count words
+
+            if (wordCount > 1000) {
                 Toast.makeText(this, "Story content cannot exceed 1000 words", Toast.LENGTH_SHORT).show();
                 return;
             }
