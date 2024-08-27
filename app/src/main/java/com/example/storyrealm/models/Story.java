@@ -1,29 +1,29 @@
 package com.example.storyrealm.models;
 
+import com.google.firebase.firestore.Exclude;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class Story {
-
     private String id;
     private String authorId;
-    private String content;
     private String title;
+    private String content;
     private long timestamp;
 
-    // Default constructor required for Firebase
+    // Default constructor required for calls to DataSnapshot.getValue(Story.class)
     public Story() {
     }
 
-    public Story(String id, String authorId, String content, String title, long timestamp) {
+    public Story(String id, String title, String content, String authorId, long timestamp) {
         this.id = id;
-        this.authorId = authorId;
-        this.content = content;
         this.title = title;
+        this.content = content;
+        this.authorId = authorId;
         this.timestamp = timestamp;
     }
 
-    // Getters and setters
     public String getId() {
         return id;
     }
@@ -40,20 +40,20 @@ public class Story {
         this.authorId = authorId;
     }
 
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
     public String getTitle() {
         return title;
     }
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public long getTimestamp() {
@@ -64,13 +64,13 @@ public class Story {
         this.timestamp = timestamp;
     }
 
-    // Convert Story to a Map
+    @Exclude
     public Map<String, Object> toMap() {
         Map<String, Object> result = new HashMap<>();
         result.put("id", id);
         result.put("authorId", authorId);
-        result.put("content", content);
         result.put("title", title);
+        result.put("content", content);
         result.put("timestamp", timestamp);
         return result;
     }

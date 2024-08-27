@@ -5,14 +5,6 @@
         android:icon="@drawable/image1"
         android:title="" />
     <item
-        android:id="@+id/nav_search"
-        android:icon="@drawable/image2"
-        android:title="" />
-    <item
-        android:id="@+id/nav_library"
-        android:icon="@drawable/image3"
-        android:title="" />
-    <item
         android:id="@+id/nav_write"
         android:icon="@drawable/image4"
         android:title="" />

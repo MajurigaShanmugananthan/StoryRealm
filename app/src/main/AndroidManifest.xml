@@ -8,12 +8,18 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/image15"
+        android:icon="@mipmap/icon2"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/image15_round"
+        android:roundIcon="@mipmap/icon2_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.StoryRealm"
         tools:targetApi="31">
+        <activity
+            android:name=".activities.StoryDetailActivity2"
+            android:exported="false" />
+        <activity
+            android:name=".activities.StoryDetailActivity"
+            android:exported="false" />
         <activity
             android:name=".fragments.CommunityFragment"
             android:exported="false" />
@@ -25,12 +31,6 @@
             android:exported="false" />
         <activity
             android:name=".repositories.StoryRepository"
-            android:exported="false" />
-        <activity
-            android:name=".activities.RecyclerItemClickListener"
-            android:exported="false" />
-        <activity
-            android:name=".activities.StoryListActivity"
             android:exported="false" />
         <activity
             android:name=".activities.StoryCreationActivity"
@@ -64,12 +64,6 @@
             android:exported="false" />
         <activity
             android:name=".fragments.WriteFragment"
-            android:exported="false" />
-        <activity
-            android:name=".fragments.LibraryFragment"
-            android:exported="false" />
-        <activity
-            android:name=".fragments.SearchFragment"
             android:exported="false" />
         <activity
             android:name=".fragments.HomeFragment"

@@ -15,10 +15,12 @@ import java.util.List;
 
 public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHolder> {
 
-    private List<Story> storyList;
+    private List<Story> stories;
+    private OnItemClickListener onItemClickListener;
 
-    public StoryAdapter(List<Story> storyList) {
-        this.storyList = storyList;
+    public StoryAdapter(List<Story> stories, OnItemClickListener onItemClickListener) {
+        this.stories = stories;
+        this.onItemClickListener = onItemClickListener;
     }
 
     @NonNull
@@ -30,23 +32,31 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
 
     @Override
     public void onBindViewHolder(@NonNull StoryViewHolder holder, int position) {
-        Story story = storyList.get(position);
-        holder.txtStoryTitle.setText(story.getTitle());
-        holder.txtStoryContent.setText(story.getContent());
+        Story story = stories.get(position);
+        holder.titleTextView.setText(story.getTitle());
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onItemClickListener.onItemClick(story);
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
-        return storyList.size();
+        return stories.size();
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(Story story);
     }
 
     public static class StoryViewHolder extends RecyclerView.ViewHolder {
-        TextView txtStoryTitle, txtStoryContent;
+        TextView titleTextView;
 
         public StoryViewHolder(@NonNull View itemView) {
             super(itemView);
-            txtStoryTitle = itemView.findViewById(R.id.txt_story_title);
-            txtStoryContent = itemView.findViewById(R.id.txt_story_content);
+            titleTextView = itemView.findViewById(R.id.story_title);
         }
     }
 }

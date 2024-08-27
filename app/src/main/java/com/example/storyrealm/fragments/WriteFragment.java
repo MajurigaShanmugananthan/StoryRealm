@@ -1,88 +1,90 @@
 package com.example.storyrealm.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.storyrealm.R;
+import com.example.storyrealm.activities.StoryCreationActivity;
+import com.example.storyrealm.activities.StoryDetailActivity;
+import com.example.storyrealm.adapters.StoryAdapter;
 import com.example.storyrealm.models.Story;
-import com.example.storyrealm.utils.FirebaseUtils;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 
 public class WriteFragment extends Fragment {
 
-    private EditText edtStoryTitle;
-    private EditText edtStoryContent;
-    private Button btnSave;
+    private RecyclerView storyRecyclerView;
+    private Button addNewStoryButton;
 
-    private DatabaseReference storyRef;
+    private DatabaseReference storiesRef;
+    private StoryAdapter storyAdapter;
+    private List<Story> userStories;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_write, container, false);
 
-        edtStoryTitle = view.findViewById(R.id.edt_story_title);
-        edtStoryContent = view.findViewById(R.id.edt_story_content);
-        btnSave = view.findViewById(R.id.btn_save);
+        storyRecyclerView = view.findViewById(R.id.recycler_view);
+        addNewStoryButton = view.findViewById(R.id.add_story_button);
 
-        storyRef = FirebaseUtils.getStoryReference();
+        userStories = new ArrayList<>();
+        storyAdapter = new StoryAdapter(userStories, story -> {
+            Intent intent = new Intent(getContext(), StoryDetailActivity.class);
+            intent.putExtra("story_id", story.getId());
+            startActivity(intent);
+        });
 
-        btnSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                saveStory();
-            }
+        storyRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        storyRecyclerView.setAdapter(storyAdapter);
+
+        storiesRef = FirebaseDatabase.getInstance().getReference("stories");
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        loadUserStories(userId);
+
+        addNewStoryButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), StoryCreationActivity.class);
+            startActivity(intent);
         });
 
         return view;
     }
 
-    private void saveStory() {
-        String title = edtStoryTitle.getText().toString().trim();
-        String content = edtStoryContent.getText().toString().trim();
+    private void loadUserStories(String userId) {
+        storiesRef.orderByChild("authorId").equalTo(userId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                userStories.clear();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Story story = snapshot.getValue(Story.class);
+                    userStories.add(story);
+                }
+                storyAdapter.notifyDataSetChanged();
+            }
 
-        if (title.isEmpty() || content.isEmpty()) {
-            Toast.makeText(getContext(), "Title and content cannot be empty", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (content.length() > 1000) {
-            Toast.makeText(getContext(), "Story content cannot exceed 1000 words", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String storyId = UUID.randomUUID().toString();
-        String authorId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        long timestamp = System.currentTimeMillis();
-
-        Story story = new Story(storyId, title, content, authorId, timestamp);
-
-        Map<String, Object> storyValues = story.toMap();
-        Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/stories/" + storyId, storyValues);
-
-        storyRef.updateChildren(childUpdates)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(getContext(), "Story saved successfully", Toast.LENGTH_SHORT).show();
-                    edtStoryTitle.setText("");
-                    edtStoryContent.setText("");
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Failed to save story", Toast.LENGTH_SHORT).show();
-                });
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getContext(), "Failed to load stories", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

@@ -13,9 +13,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.storyrealm.R;
 import com.example.storyrealm.fragments.HomeFragment;
-import com.example.storyrealm.fragments.LibraryFragment;
 import com.example.storyrealm.fragments.NotificationsFragment;
-import com.example.storyrealm.fragments.SearchFragment;
 import com.example.storyrealm.fragments.WriteFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -44,10 +42,6 @@ public class MainActivity extends AppCompatActivity {
 
             if (id == R.id.nav_home) {
                 selectedFragment = new HomeFragment();
-            } else if (id == R.id.nav_search) {
-                selectedFragment = new SearchFragment();
-            } else if (id == R.id.nav_library) {
-                selectedFragment = new LibraryFragment();
             } else if (id == R.id.nav_write) {
                 selectedFragment = new WriteFragment();
             } else if (id == R.id.nav_notifications) {
