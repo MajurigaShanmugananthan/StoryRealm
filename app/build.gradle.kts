@@ -49,6 +49,8 @@ dependencies {
     implementation ("com.google.firebase:firebase-firestore:25.0.0")
     implementation ("androidx.recyclerview:recyclerview:1.3.1")
     implementation ("com.google.firebase:firebase-analytics:21.4.0")
+    implementation ("com.google.firebase:firebase-analytics:21.0.0")
+
 }
 
 // Apply the Google services plugin at the bottom

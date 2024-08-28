@@ -10,9 +10,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.storyrealm.R;
-import com.example.storyrealm.fragments.WriteFragment;
 import com.example.storyrealm.models.Story;
-import com.example.storyrealm.repositories.StoryRepository;
+import com.example.storyrealm.services.AnalyticsService;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -22,7 +21,7 @@ public class StoryCreationActivity extends AppCompatActivity {
     private EditText storyTitleEditText;
     private EditText storyContentEditText;
     private Button updateButton;
-    private StoryRepository storyRepository;
+    private AnalyticsService analyticsService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +32,7 @@ public class StoryCreationActivity extends AppCompatActivity {
         storyContentEditText = findViewById(R.id.story_content_edit_text);
         updateButton = findViewById(R.id.update_button);
 
-        storyRepository = new StoryRepository();
+        analyticsService = new AnalyticsService(this);
 
         updateButton.setOnClickListener(v -> {
             String title = storyTitleEditText.getText().toString().trim();
@@ -60,6 +59,16 @@ public class StoryCreationActivity extends AppCompatActivity {
             if (storyId != null) {
                 storyRef.child(storyId).setValue(newStory).addOnSuccessListener(aVoid -> {
                     Toast.makeText(this, "Story added successfully", Toast.LENGTH_SHORT).show();
+
+                    // Log the story created event
+                    analyticsService.logStoryCreatedEvent(storyId, title);
+
+                    // Navigate to StoryDetailActivity
+                    Intent intent = new Intent(StoryCreationActivity.this, StoryDetailActivity.class);
+                    intent.putExtra("STORY_ID", storyId);
+                    intent.putExtra("STORY_TITLE", title);
+                    startActivity(intent);
+
                     finish();
                 }).addOnFailureListener(e -> {
                     Toast.makeText(this, "Failed to add story", Toast.LENGTH_SHORT).show();
