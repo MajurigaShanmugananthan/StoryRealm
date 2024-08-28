@@ -15,6 +15,9 @@
         android:theme="@style/Theme.StoryRealm"
         tools:targetApi="31">
         <activity
+            android:name=".activities.StoryDetailActivity3"
+            android:exported="false" />
+        <activity
             android:name=".models.Subscription"
             android:exported="false" />
         <activity
@@ -30,9 +33,6 @@
             android:name=".services.AnalyticsService"
             android:exported="false" />
         <activity
-            android:name=".services.NotificationService"
-            android:exported="false" />
-        <activity
             android:name=".repositories.StoryRepository"
             android:exported="false" />
         <activity
@@ -46,9 +46,6 @@
             android:exported="false" />
         <activity
             android:name=".adapters.NotificationAdapter"
-            android:exported="false" />
-        <activity
-            android:name=".models.Notification"
             android:exported="false" />
         <activity
             android:name=".utils.NotificationUtils"

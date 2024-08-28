@@ -1,5 +1,6 @@
 package com.example.storyrealm.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.storyrealm.R;
+import com.example.storyrealm.activities.StoryDetailActivity3;
 import com.example.storyrealm.adapters.NotificationAdapter;
 import com.example.storyrealm.models.Story;
 import com.example.storyrealm.models.Subscription;
@@ -41,7 +43,11 @@ public class NotificationsFragment extends Fragment {
 
         notificationRecyclerView = view.findViewById(R.id.notification_recycler_view);
         notifications = new ArrayList<>();
-        notificationAdapter = new NotificationAdapter(notifications);
+        notificationAdapter = new NotificationAdapter(notifications, story -> {
+            Intent intent = new Intent(getActivity(), StoryDetailActivity3.class);
+            intent.putExtra("story_id", story.getId());
+            startActivity(intent);
+        });
 
         notificationRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         notificationRecyclerView.setAdapter(notificationAdapter);
@@ -111,5 +117,4 @@ public class NotificationsFragment extends Fragment {
             });
         }
     }
-
 }

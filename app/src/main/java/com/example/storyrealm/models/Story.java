@@ -1,11 +1,14 @@
 package com.example.storyrealm.models;
 
-import com.google.firebase.firestore.Exclude;
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.google.firebase.database.Exclude;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class Story {
+public class Story implements Parcelable {
     private String id;
     private String authorId;
     private String title;
@@ -22,6 +25,40 @@ public class Story {
         this.content = content;
         this.authorId = authorId;
         this.timestamp = timestamp;
+    }
+
+    protected Story(Parcel in) {
+        id = in.readString();
+        authorId = in.readString();
+        title = in.readString();
+        content = in.readString();
+        timestamp = in.readLong();
+    }
+
+    public static final Creator<Story> CREATOR = new Creator<Story>() {
+        @Override
+        public Story createFromParcel(Parcel in) {
+            return new Story(in);
+        }
+
+        @Override
+        public Story[] newArray(int size) {
+            return new Story[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(id);
+        parcel.writeString(authorId);
+        parcel.writeString(title);
+        parcel.writeString(content);
+        parcel.writeLong(timestamp);
     }
 
     public String getId() {
