@@ -9,15 +9,16 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.storyrealm.R;
+import com.example.storyrealm.models.Story;
 
 import java.util.List;
 
 public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder> {
 
-    private List<String> notificationList;
+    private List<Story> notifications;
 
-    public NotificationAdapter(List<String> notificationList) {
-        this.notificationList = notificationList;
+    public NotificationAdapter(List<Story> notifications) {
+        this.notifications = notifications;
     }
 
     @NonNull
@@ -29,21 +30,21 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
     @Override
     public void onBindViewHolder(@NonNull NotificationViewHolder holder, int position) {
-        String message = notificationList.get(position);
-        holder.notificationMessage.setText(message);
+        Story story = notifications.get(position);
+        holder.storyTitle.setText(story.getTitle());
     }
 
     @Override
     public int getItemCount() {
-        return notificationList.size();
+        return notifications.size();
     }
 
-    public static class NotificationViewHolder extends RecyclerView.ViewHolder {
-        TextView notificationMessage;
+    static class NotificationViewHolder extends RecyclerView.ViewHolder {
+        TextView storyTitle;
 
         public NotificationViewHolder(@NonNull View itemView) {
             super(itemView);
-            notificationMessage = itemView.findViewById(R.id.notification_message);
+            storyTitle = itemView.findViewById(R.id.notification_title);
         }
     }
 }

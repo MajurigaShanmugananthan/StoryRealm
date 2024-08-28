@@ -15,6 +15,9 @@
         android:theme="@style/Theme.StoryRealm"
         tools:targetApi="31">
         <activity
+            android:name=".models.Subscription"
+            android:exported="false" />
+        <activity
             android:name=".activities.StoryDetailActivity2"
             android:exported="false" />
         <activity

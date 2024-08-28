@@ -7,15 +7,22 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.storyrealm.R;
 import com.example.storyrealm.adapters.NotificationAdapter;
-import com.example.storyrealm.services.NotificationService;
+import com.example.storyrealm.models.Story;
+import com.example.storyrealm.models.Subscription;
+import com.example.storyrealm.utils.NotificationUtils;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -23,46 +30,86 @@ import java.util.List;
 
 public class NotificationsFragment extends Fragment {
 
-    private RecyclerView recyclerView;
+    private RecyclerView notificationRecyclerView;
     private NotificationAdapter notificationAdapter;
-    private List<String> notificationList;
-    private NotificationService notificationService;
+    private List<Story> notifications;
 
-    public NotificationsFragment() {
-        // Required empty public constructor
-    }
-
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_notifications, container, false);
 
-        recyclerView = view.findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        notificationRecyclerView = view.findViewById(R.id.notification_recycler_view);
+        notifications = new ArrayList<>();
+        notificationAdapter = new NotificationAdapter(notifications);
 
-        notificationList = new ArrayList<>();
-        notificationAdapter = new NotificationAdapter(notificationList);
-        recyclerView.setAdapter(notificationAdapter);
+        notificationRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        notificationRecyclerView.setAdapter(notificationAdapter);
 
-        notificationService = new NotificationService();
-
-        // Assuming "category1" is the category ID the user is subscribed to
-        notificationService.subscribeToCategory("category1", new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                notificationList.clear();
-                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    String message = dataSnapshot.getValue(String.class);
-                    notificationList.add(message);
-                }
-                notificationAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "Failed to load notifications", Toast.LENGTH_SHORT).show();
-            }
-        });
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        loadSubscriptions(userId);
 
         return view;
     }
+
+    private void loadSubscriptions(String userId) {
+        DatabaseReference subscriptionRef = FirebaseDatabase.getInstance().getReference("subscriptions");
+        subscriptionRef.child(userId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                List<String> subscribedAuthorIds = new ArrayList<>();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Subscription subscription = snapshot.getValue(Subscription.class);
+                    subscribedAuthorIds.add(subscription.getAuthorId());
+                }
+                loadNotifications(subscribedAuthorIds);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getContext(), "Failed to load subscriptions", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void loadNotifications(List<String> subscribedAuthorIds) {
+        DatabaseReference storiesRef = FirebaseDatabase.getInstance().getReference("stories");
+
+        for (String authorId : subscribedAuthorIds) {
+            storiesRef.orderByChild("authorId").equalTo(authorId).addChildEventListener(new ChildEventListener() {
+                @Override
+                public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String previousChildName) {
+                    Story story = dataSnapshot.getValue(Story.class);
+                    if (story != null && !notifications.contains(story)) {
+                        notifications.add(story);
+                        notificationAdapter.notifyDataSetChanged();
+
+                        // Send a local notification
+                        new Thread(() -> NotificationUtils.sendNotification(getContext(), "New Story", "A new story titled '" + story.getTitle() + "' has been published.")).start();
+                    }
+                }
+
+                @Override
+                public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String previousChildName) {
+                    // Handle updates if necessary
+                }
+
+                @Override
+                public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+                    // Handle removals if necessary
+                }
+
+                @Override
+                public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String previousChildName) {
+                    // Handle moves if necessary
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Toast.makeText(getContext(), "Failed to load notifications", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
 }
