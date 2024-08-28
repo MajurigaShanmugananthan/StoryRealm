@@ -41,6 +41,7 @@ dependencies {
     implementation(libs.firebase.database)
     implementation(libs.firebase.storage)
     implementation(libs.firebase.firestore)
+    implementation(libs.preference)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -50,6 +51,7 @@ dependencies {
     implementation ("androidx.recyclerview:recyclerview:1.3.1")
     implementation ("com.google.firebase:firebase-analytics:21.4.0")
     implementation ("com.google.firebase:firebase-analytics:21.0.0")
+    implementation ("com.google.android.material:material:1.9.0")
 
 }
 

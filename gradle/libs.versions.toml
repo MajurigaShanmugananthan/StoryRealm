@@ -12,6 +12,7 @@ firebaseAuth = "23.0.0"
 firebase-database = "20.3.0"
 firebase-storage = "20.2.1"
 firebaseFirestore = "25.0.0"
+preference = "1.2.1"
 
 
 [libraries]
@@ -28,6 +29,7 @@ firebase-auth = { module = "com.google.firebase:firebase-auth", version.ref = "f
 firebase-database = { module = "com.google.firebase:firebase-database", version.ref = "firebase-database" }
 firebase-storage = { module = "com.google.firebase:firebase-storage", version.ref = "firebase-storage" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
+preference = { group = "androidx.preference", name = "preference", version.ref = "preference" }
 
 
 [plugins]
