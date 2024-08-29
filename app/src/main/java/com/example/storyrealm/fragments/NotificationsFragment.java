@@ -97,12 +97,27 @@ public class NotificationsFragment extends Fragment {
 
                 @Override
                 public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String previousChildName) {
-                    // Handle updates if necessary
+                    Story updatedStory = dataSnapshot.getValue(Story.class);
+                    if (updatedStory != null) {
+                        // Find the story in the notifications list and update it
+                        for (int i = 0; i < notifications.size(); i++) {
+                            if (notifications.get(i).getId().equals(updatedStory.getId())) {
+                                notifications.set(i, updatedStory);
+                                notificationAdapter.notifyItemChanged(i);
+                                break;
+                            }
+                        }
+                    }
                 }
 
                 @Override
                 public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                    // Handle removals if necessary
+                    Story removedStory = dataSnapshot.getValue(Story.class);
+                    if (removedStory != null) {
+                        // Find and remove the story from the notifications list
+                        notifications.removeIf(story -> story.getId().equals(removedStory.getId()));
+                        notificationAdapter.notifyDataSetChanged();
+                    }
                 }
 
                 @Override

@@ -6,7 +6,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -33,9 +32,10 @@ public class StoryDetailActivity3 extends AppCompatActivity {
         storyContent = findViewById(R.id.story_content);
         unsubscribeButton = findViewById(R.id.unsubscribe_button);
 
-        // Get story data from the intent
+        // Retrieve the story object passed via intent
         Story story = getIntent().getParcelableExtra("story");
         if (story != null) {
+            // Populate the UI with story details
             storyTitle.setText(story.getTitle());
             storyContent.setText(story.getContent());
             authorId = story.getAuthorId();  // Store the author's ID
