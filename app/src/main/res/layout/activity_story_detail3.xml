@@ -26,6 +26,5 @@
         android:layout_height="wrap_content"
         android:text="Unsubscribe"
         android:layout_below="@id/story_content"
-        android:layout_marginTop="16dp"
-        android:layout_centerHorizontal="true"/>
+        android:layout_marginTop="16dp" />
 </RelativeLayout>
