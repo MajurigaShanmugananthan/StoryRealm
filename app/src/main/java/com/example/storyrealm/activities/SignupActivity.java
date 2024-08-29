@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.storyrealm.R;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -43,10 +44,16 @@ public class SignupActivity extends AppCompatActivity {
                 String password = passwordEditText.getText().toString().trim();
                 String confirmPassword = confirmPasswordEditText.getText().toString().trim();
 
-                if (password.equals(confirmPassword)) {
-                    createUser(email, username, password);
-                } else {
+                if (email.isEmpty() || username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+                    Toast.makeText(SignupActivity.this, "Please fill in all fields.", Toast.LENGTH_SHORT).show();
+                } else if (!password.equals(confirmPassword)) {
                     Toast.makeText(SignupActivity.this, "Passwords do not match.", Toast.LENGTH_SHORT).show();
+                } else if (password.length() < 6) { // Example password validation
+                    Toast.makeText(SignupActivity.this, "Password should be at least 6 characters long.", Toast.LENGTH_SHORT).show();
+                } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                    Toast.makeText(SignupActivity.this, "Invalid email address.", Toast.LENGTH_SHORT).show();
+                } else {
+                    createUser(email, username, password);
                 }
             }
         });
@@ -63,7 +70,13 @@ public class SignupActivity extends AppCompatActivity {
 
                         updateUI(user);
                     } else {
-                        Toast.makeText(SignupActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                        if (task.getException() instanceof FirebaseAuthUserCollisionException) {
+                            // Email already in use
+                            Toast.makeText(SignupActivity.this, "The email address is already in use by another account.", Toast.LENGTH_SHORT).show();
+                        } else {
+                            // Other errors
+                            Toast.makeText(SignupActivity.this, "Sign-up failed. Please try again.", Toast.LENGTH_SHORT).show();
+                        }
                         updateUI(null);
                     }
                 });
