@@ -2,7 +2,6 @@ package com.example.storyrealm.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -11,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.storyrealm.R;
 import com.example.storyrealm.models.Story;
+import com.example.storyrealm.repositories.StoryRepository;
 import com.example.storyrealm.services.AnalyticsService;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
@@ -21,6 +21,7 @@ public class StoryCreationActivity extends AppCompatActivity {
     private EditText storyTitleEditText;
     private EditText storyContentEditText;
     private Button updateButton;
+    private StoryRepository storyRepository;
     private AnalyticsService analyticsService;
 
     @Override
@@ -32,7 +33,23 @@ public class StoryCreationActivity extends AppCompatActivity {
         storyContentEditText = findViewById(R.id.story_content_edit_text);
         updateButton = findViewById(R.id.update_button);
 
+        storyRepository = new StoryRepository();
         analyticsService = new AnalyticsService(this);
+
+        Intent intent = getIntent();
+        String storyId = intent.getStringExtra("story_id");
+        String storyTitle = intent.getStringExtra("story_title");
+        String storyContent = intent.getStringExtra("story_content");
+
+        if (storyTitle != null) {
+            storyTitleEditText.setText(storyTitle);
+        }
+
+        if (storyContent != null) {
+            storyContentEditText.setText(storyContent);
+        }
+
+        final String finalStoryId = storyId;  // Declare a final or effectively final variable
 
         updateButton.setOnClickListener(v -> {
             String title = storyTitleEditText.getText().toString().trim();
@@ -53,25 +70,23 @@ public class StoryCreationActivity extends AppCompatActivity {
             String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
             DatabaseReference storyRef = FirebaseDatabase.getInstance().getReference("stories");
 
-            String storyId = storyRef.push().getKey();
-            Story newStory = new Story(storyId, title, content, userId, System.currentTimeMillis());
+            String idToUse = finalStoryId != null ? finalStoryId : storyRef.push().getKey();  // Use final variable in lambda
 
-            if (storyId != null) {
-                storyRef.child(storyId).setValue(newStory).addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "Story added successfully", Toast.LENGTH_SHORT).show();
+            Story updatedStory = new Story(idToUse, title, content, userId, System.currentTimeMillis());
+
+            if (idToUse != null) {
+                storyRef.child(idToUse).setValue(updatedStory).addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "Story updated successfully", Toast.LENGTH_SHORT).show();
 
                     // Log the story created event
-                    analyticsService.logStoryCreatedEvent(storyId, title);
+                    analyticsService.logStoryCreatedEvent(idToUse, title);
 
-                    // Navigate to StoryDetailActivity
-                    Intent intent = new Intent(StoryCreationActivity.this, StoryDetailActivity.class);
-                    intent.putExtra("STORY_ID", storyId);
-                    intent.putExtra("STORY_TITLE", title);
-                    startActivity(intent);
-
+                    // Set result and finish the activity
+                    Intent resultIntent = new Intent();
+                    setResult(RESULT_OK, resultIntent);
                     finish();
                 }).addOnFailureListener(e -> {
-                    Toast.makeText(this, "Failed to add story", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Failed to update story", Toast.LENGTH_SHORT).show();
                 });
             }
         });

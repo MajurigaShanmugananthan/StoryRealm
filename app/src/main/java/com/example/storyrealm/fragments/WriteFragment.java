@@ -1,5 +1,7 @@
 package com.example.storyrealm.fragments;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -30,6 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WriteFragment extends Fragment {
+
+    private static final int REQUEST_CODE_EDIT_STORY = 1; // Request code for editing story
 
     private RecyclerView storyRecyclerView;
     private Button addNewStoryButton;
@@ -63,7 +67,7 @@ public class WriteFragment extends Fragment {
 
         addNewStoryButton.setOnClickListener(v -> {
             Intent intent = new Intent(getContext(), StoryCreationActivity.class);
-            startActivity(intent);
+            startActivityForResult(intent, REQUEST_CODE_EDIT_STORY); // Use startActivityForResult
         });
 
         return view;
@@ -86,5 +90,14 @@ public class WriteFragment extends Fragment {
                 Toast.makeText(getContext(), "Failed to load stories", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_EDIT_STORY && resultCode == RESULT_OK) {
+            String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            loadUserStories(userId); // Refresh the story list
+        }
     }
 }

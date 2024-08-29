@@ -1,7 +1,7 @@
 package com.example.storyrealm.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -11,7 +11,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.storyrealm.R;
 import com.example.storyrealm.models.Story;
 import com.example.storyrealm.services.AnalyticsService;
-import com.example.storyrealm.repositories.StoryRepository;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -20,10 +19,11 @@ public class StoryDetailActivity extends AppCompatActivity {
     private TextView storyTitleTextView;
     private TextView storyContentTextView;
     private Button deleteButton;
-    private StoryRepository storyRepository;
+    private Button editButton;
     private AnalyticsService analyticsService;
     private String storyId;
     private String storyTitle;
+    private String storyContent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,8 +33,8 @@ public class StoryDetailActivity extends AppCompatActivity {
         storyTitleTextView = findViewById(R.id.story_title);
         storyContentTextView = findViewById(R.id.story_content);
         deleteButton = findViewById(R.id.delete_button);
+        editButton = findViewById(R.id.edit_button);
 
-        storyRepository = new StoryRepository();
         analyticsService = new AnalyticsService(this);
 
         storyId = getIntent().getStringExtra("story_id");
@@ -49,6 +49,16 @@ public class StoryDetailActivity extends AppCompatActivity {
                 deleteStory(storyId);
             }
         });
+
+        editButton.setOnClickListener(v -> {
+            if (storyId != null) {
+                Intent intent = new Intent(StoryDetailActivity.this, StoryCreationActivity.class);
+                intent.putExtra("story_id", storyId);
+                intent.putExtra("story_title", storyTitle);
+                intent.putExtra("story_content", storyContent);
+                startActivity(intent);
+            }
+        });
     }
 
     private void fetchStoryDetails(String storyId) {
@@ -57,11 +67,14 @@ public class StoryDetailActivity extends AppCompatActivity {
             if (task.isSuccessful()) {
                 Story story = task.getResult().getValue(Story.class);
                 if (story != null) {
-                    storyTitleTextView.setText(story.getTitle());
-                    storyContentTextView.setText(story.getContent());
+                    storyTitle = story.getTitle();
+                    storyContent = story.getContent();
+
+                    storyTitleTextView.setText(storyTitle);
+                    storyContentTextView.setText(storyContent);
 
                     // Log the story read event
-                    analyticsService.logStoryReadEvent(storyId, story.getTitle());
+                    analyticsService.logStoryReadEvent(storyId, storyTitle);
                 }
             } else {
                 Toast.makeText(this, "Failed to load story details", Toast.LENGTH_SHORT).show();

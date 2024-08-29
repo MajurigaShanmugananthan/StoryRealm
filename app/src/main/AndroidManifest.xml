@@ -15,6 +15,9 @@
         android:theme="@style/Theme.StoryRealm"
         tools:targetApi="31">
         <activity
+            android:name=".repositories.StoryRepositories"
+            android:exported="false" />
+        <activity
             android:name=".activities.StoryDetailActivity3"
             android:exported="false" />
         <activity
@@ -31,9 +34,6 @@
             android:exported="false" />
         <activity
             android:name=".services.AnalyticsService"
-            android:exported="false" />
-        <activity
-            android:name=".repositories.StoryRepository"
             android:exported="false" />
         <activity
             android:name=".activities.StoryCreationActivity"
